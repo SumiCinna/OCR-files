@@ -1,0 +1,158 @@
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.drop-zone {
+  transition: all 0.2s ease;
+}
+
+.drop-zone.dragover {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  transform: scale(1.005);
+}
+
+.file-card {
+  animation: slideIn 0.2s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-card {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ocr-output {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #1e293b;
+}
+
+.ocr-output .doc-title {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  color: #0f172a;
+  margin: 10px 0 6px;
+  letter-spacing: 0.5px;
+}
+
+.ocr-output .doc-subtitle {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  color: #475569;
+  margin-bottom: 14px;
+}
+
+.ocr-output .section-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e40af;
+  background: #eff6ff;
+  border-left: 3px solid #3b82f6;
+  padding: 4px 10px;
+  margin: 14px 0 6px;
+  border-radius: 0 4px 4px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.ocr-output .kv-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+.ocr-output .kv-table td {
+  padding: 5px 10px;
+  vertical-align: top;
+  border: 1px solid #e2e8f0;
+}
+
+.ocr-output .kv-table td.kv-key {
+  font-weight: 600;
+  color: #334155;
+  background: #f8fafc;
+  width: 38%;
+  white-space: nowrap;
+}
+
+.ocr-output .kv-table td.kv-val {
+  color: #1e293b;
+}
+
+.ocr-output .data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-size: 12.5px;
+}
+
+.ocr-output .data-table th {
+  background: #1e40af;
+  color: white;
+  font-weight: 600;
+  padding: 7px 10px;
+  text-align: left;
+  font-size: 12px;
+}
+
+.ocr-output .data-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ocr-output .data-table tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+.ocr-output .data-table tr:hover td {
+  background: #eff6ff;
+}
+
+.ocr-output .plain-line {
+  margin: 2px 0;
+}
+
+.ocr-output .bold-line {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ocr-output hr.divider {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 10px 0;
+}
