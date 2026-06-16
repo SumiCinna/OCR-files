@@ -125,6 +125,8 @@ async function extractText() {
         text: data.text || '',
         error: data.error || '',
         pages: data.pages || 1,
+        pagesData: data.pagesData || [],
+        source: data.source || 'ocr',
       });
     } catch (error) {
       extractedResults.push({
@@ -180,6 +182,13 @@ function formatOCRText(rawText) {
 
     if (!line) {
       html += '<div style="height:6px"></div>';
+      index += 1;
+      continue;
+    }
+
+    const boldMarkerMatch = line.match(/^\*\*(.+)\*\*$/);
+    if (boldMarkerMatch) {
+      html += `<div class="bold-line">${esc(boldMarkerMatch[1])}</div>`;
       index += 1;
       continue;
     }
@@ -325,12 +334,53 @@ function formatOCRText(rawText) {
   return html;
 }
 
+function formatStructuredOCR(pagesData) {
+  if (!Array.isArray(pagesData) || pagesData.length === 0) {
+    return '';
+  }
+
+  let html = '<div class="ocr-output">';
+
+  pagesData.forEach((page) => {
+    const pageLines = Array.isArray(page.lines) ? page.lines : [];
+
+    if (pagesData.length > 1) {
+      html += `<div class="ocr-page-label">Page ${esc(String(page.page || ''))}</div>`;
+    }
+
+    pageLines.forEach((line) => {
+      const text = String(line.text || '').trim();
+      if (!text) {
+        return;
+      }
+
+      const classes = ['ocr-line'];
+      if (line.bold) {
+        classes.push('bold-line');
+      } else {
+        classes.push('plain-line');
+      }
+
+      html += `<div class="${classes.join(' ')}">${esc(text)}</div>`;
+    });
+  });
+
+  html += '</div>';
+  return html;
+}
+
 function buildCopyText(rawText) {
   const lines = rawText.split('\n').map((line) => line.trim()).filter(Boolean);
   const output = [];
 
   for (let index = 0; index < lines.length; index++) {
     const line = lines[index];
+
+    const boldMarkerMatch = line.match(/^\*\*(.+)\*\*$/);
+    if (boldMarkerMatch) {
+      output.push(boldMarkerMatch[1]);
+      continue;
+    }
 
     if (/^\|[\s:-]+\|(?:[\s:-]+\|)*$/.test(line)) {
       continue;
@@ -394,7 +444,11 @@ function renderResults() {
     const visible = !query || matchCount > 0 || !result.success;
     div.className = `result-card border rounded-2xl overflow-hidden ${result.success ? 'border-slate-200' : 'border-red-200'} ${visible ? '' : 'hidden'}`;
 
-    let bodyHtml = result.success ? formatOCRText(result.text) : `<p class="text-sm text-red-600 font-medium">${esc(result.error)}</p>`;
+    let bodyHtml = result.success
+      ? (Array.isArray(result.pagesData) && result.pagesData.length > 0
+        ? formatStructuredOCR(result.pagesData)
+        : formatOCRText(result.text))
+      : `<p class="text-sm text-red-600 font-medium">${esc(result.error)}</p>`;
     if (query && result.success && matchCount > 0) {
       bodyHtml = highlightHtml(bodyHtml, query);
     }

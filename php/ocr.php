@@ -2,8 +2,8 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-function respond(bool $success, string $text = '', string $error = '', int $pages = 1): void {
-    echo json_encode(compact('success', 'text', 'error', 'pages'));
+function respond(bool $success, string $text = '', string $error = '', int $pages = 1, array $extra = []): void {
+    echo json_encode(array_merge(compact('success', 'text', 'error', 'pages'), $extra));
     exit;
 }
 
@@ -29,6 +29,14 @@ if (!in_array($mimeType, $allowedMimes)) {
 
 if (filesize($tmpPath) > 5 * 1024 * 1024) {
     respond(false, '', 'File too large. OCR.space free tier limit is 5 MB.');
+}
+
+$result = runPythonRequest($tmpPath, $origName, $mimeType);
+if ($result['success'] && !empty($result['text'])) {
+    respond(true, $result['text'], '', $result['pages'], [
+        'pagesData' => $result['pagesData'],
+        'source' => 'python',
+    ]);
 }
 
 $postFields = [
@@ -124,6 +132,59 @@ function runOcrRequest(array $postFields): array {
         'text' => trim($extractedText),
         'error' => '',
         'pages' => max(1, $pageCount),
+    ];
+}
+
+function runPythonRequest(string $tmpPath, string $origName, string $mimeType): array {
+    $ch = curl_init('http://127.0.0.1:8000/extract');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => [
+            'file' => new CURLFile($tmpPath, $mimeType, $origName),
+        ],
+        CURLOPT_CONNECTTIMEOUT => 3,
+        CURLOPT_TIMEOUT => 120,
+    ]);
+
+    $response = curl_exec($ch);
+    $curlErr = curl_error($ch);
+    $statusCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($curlErr) {
+        return [
+            'success' => false,
+            'text' => '',
+            'error' => 'Python service error: ' . $curlErr,
+            'pages' => 1,
+        ];
+    }
+
+    $data = json_decode($response, true);
+    if ($statusCode < 200 || $statusCode >= 300 || !$data) {
+        return [
+            'success' => false,
+            'text' => '',
+            'error' => 'Python OCR service unavailable.',
+            'pages' => 1,
+        ];
+    }
+
+    $pagesRaw = $data['pages'] ?? [];
+    $pagesCount = 1;
+    if (is_array($pagesRaw)) {
+        $pagesCount = max(1, count($pagesRaw));
+    } elseif (is_numeric($pagesRaw)) {
+        $pagesCount = max(1, (int) $pagesRaw);
+    }
+
+    return [
+        'success' => !empty($data['success']),
+        'text' => trim((string) ($data['text'] ?? '')),
+        'error' => '',
+        'pages' => $pagesCount,
+        'pagesData' => is_array($pagesRaw) ? $pagesRaw : [],
     ];
 }
 

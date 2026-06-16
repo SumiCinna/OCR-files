@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI OCR — Text Extractor</title>
+  <title>OCR — Text Extractor</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/app.css" />
@@ -19,7 +19,7 @@
           </svg>
         </div>
         <div>
-          <h1 class="font-bold text-slate-900 leading-none text-sm">AI OCR</h1>
+          <h1 class="font-bold text-slate-900 leading-none text-sm">OCR</h1>
           <p class="text-xs text-slate-400">Powered by OCR.space</p>
         </div>
       </div>
@@ -74,7 +74,7 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
             </svg>
-            Extract Text with AI
+            Extract Text 
           </button>
         </div>
       </div>
